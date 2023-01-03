@@ -1,0 +1,11 @@
+[package]
+name = "tickets-rs-adapters"
+version = "0.1.0"
+authors = ["Robert Lang"]
+edition = "2021"
+description = "This Crate contains the implementations of the default adapters for tickets-rs"
+
+[dependencies]
+tickets-rs-core = { version = "0.1", path = "../core" }
+
+rusqlite = { version = "0.28.0", features = ["bundled"] }

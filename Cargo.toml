@@ -1,0 +1,32 @@
+[package]
+name = "tickets-rs"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "tickets-rs"
+edition = "2021"
+path = "main.rs"
+
+[workspace]
+members = [
+    "adapters",
+    "core",
+    "ui"
+]
+
+[dependencies]
+tickets-rs-core = { version = "0.1", path = "core" }
+tickets-rs-adapters = { version = "0.1", path = "adapters" }
+tickets-rs-ui = { version = "0.1", path = "ui" }
+
+[profile.release-opt]
+inherits = "release"
+codegen-units = 1
+debug = false
+lto = true
+incremental = false
+opt-level = 3
+overflow-checks = false
+strip = "debuginfo"
