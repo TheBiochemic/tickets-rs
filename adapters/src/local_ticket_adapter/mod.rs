@@ -362,7 +362,7 @@ impl LocalTicketAdapter {
                             "(which makes copying & pasting easier). You can optionally mark the",
                             "delimited block for Pandoc to syntax highlight it:",
                             "",
-                            "~~~python",
+                            "~~~py",
                             "import time",
                             "# Quick, count to ten!",
                             "for i in range(10):",
@@ -373,7 +373,7 @@ impl LocalTicketAdapter {
                             "",
                             "Here's a link to [the cargo website for testing](https://crates.io/)",
                             "",
-                            "[image example](https://github.com/TheBiochemic/free_px_assets/blob/main/biocraft_textures/Block_Exclusive.png?raw=true \"example image\")"
+                            "![image example](https://github.com/TheBiochemic/free_px_assets/blob/main/biocraft_textures/Block_Exclusive.png?raw=true \"example image\")"
                         ].join("\n"))
                         .with_state(&state_live)
                         .with_tags(vec![
