@@ -833,9 +833,14 @@ impl OverlayHelper {
                                     *description += "[^1]";
                                     ui.close_menu();
                                 };
+
+                                if ui.button("Image").clicked() {
+                                    *description += "![Image title](https://www.example.com/image.png)";
+                                    ui.close_menu();
+                                };
         
                                 if ui.button("Link").clicked() {
-                                    *description += "[Linktitle](https://www.example.com)";
+                                    *description += "[Link title](https://www.example.com)";
                                     ui.close_menu();
                                 };
                             });

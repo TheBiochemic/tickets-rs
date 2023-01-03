@@ -9,7 +9,7 @@ description = "This crate contains all UI related things for tickets-rs, made wi
 tickets-rs-core = { version = "0.1", path = "../core" }
 
 egui = { version = "0.19.0", features = ["color-hex"] } 
-egui_commonmark = "0.4.0"
+egui_commonmark = { version = "0.4.0", features = ["syntax_highlighting", "svg", "fetch"] }
 eframe = "0.19.0"
 chrono = "0.4.22"
 timer = "0.2.0"

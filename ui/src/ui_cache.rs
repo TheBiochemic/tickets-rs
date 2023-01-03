@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use egui::Color32;
+use egui_commonmark::CommonMarkCache;
 use tickets_rs_core::StateIdentifier;
 
 use crate::UIController;
@@ -30,7 +31,9 @@ pub struct UICache {
     pub states: HashMap<StateIdentifier, String>,
 
     pub username_valid: bool,
-    pub username: String
+    pub username: String,
+
+    pub commonmark: CommonMarkCache
 }
 
 impl UICache {

@@ -269,7 +269,7 @@ impl UserInterface {
         ticket: &Ticket, 
         theme: &UITheme, 
         icon: Option<TextureHandle>, 
-        cache: &UICache
+        cache: &mut UICache
     ) -> TicketAction {
 
         let font_size = theme.font_size as f32;
@@ -339,8 +339,7 @@ impl UserInterface {
                         .max_height(heading_size * 5.0)
                         .min_scrolled_height(heading_size * 5.0)
                         .show(ui, |ui| {
-                            let mut cache = CommonMarkCache::default();
-                            CommonMarkViewer::new(format!("viewer_{}::{}", ticket.id, ticket.adapter)).show(ui, &mut cache, &ticket.description);
+                            CommonMarkViewer::new(format!("viewer_{}::{}", ticket.id, ticket.adapter)).show(ui, &mut cache.commonmark, &ticket.description);
                         });
 
                 ui.horizontal_wrapped(|ui| {
@@ -402,7 +401,7 @@ impl UserInterface {
         ticket: &Ticket, 
         theme: &UITheme, 
         icon: Option<TextureHandle>, 
-        cache: &UICache
+        cache: &mut UICache
     ) -> TicketAction {
 
         let half_font = theme.font_size as f32 / 2.0;
@@ -477,8 +476,7 @@ impl UserInterface {
                         .max_height(double_font * 10.0)
                         .min_scrolled_height(double_font * 10.0)
                         .show(ui, |ui| {
-                            let mut cache = CommonMarkCache::default();
-                            CommonMarkViewer::new(format!("viewer_{}::{}", ticket.id, ticket.adapter)).show(ui, &mut cache, &ticket.description);
+                            CommonMarkViewer::new(format!("viewer_{}::{}", ticket.id, ticket.adapter)).show(ui, &mut cache.commonmark, &ticket.description);
                         });
 
                 
