@@ -3,6 +3,8 @@
 Tickets.rs is a Desktop application made with egui, that is used for managing and modifying Tickets (or Issues, Tasks, TODO's). It's goal is to have the choice between multiple different Adapters, that can interface with different
 Systems out there, or locally to keep everything in one place: **this App**.
 
+![App Screenshot](assets/screenshot_app.png)
+
 Currently supported Language is **English** only.
 
 ## Features
