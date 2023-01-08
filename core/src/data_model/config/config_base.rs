@@ -1,15 +1,13 @@
-use std::collections::{HashMap, hash_map::Iter};
+use std::collections::BTreeMap;
 
-use super::{ConfigOption, config_option::ToConfig};
-
+use super::{config_option::ToConfig, ConfigOption};
 
 #[derive(Default, PartialEq, Clone)]
 pub struct Config {
-    options: HashMap<String, ConfigOption>
+    options: BTreeMap<String, ConfigOption>,
 }
 
 impl Config {
-
     pub fn len(&self) -> usize {
         self.options.len()
     }
@@ -18,7 +16,7 @@ impl Config {
         self.options.is_empty()
     }
 
-    pub fn iter(&self) -> Iter<String, ConfigOption> {
+    pub fn iter(&self) -> impl Iterator<Item = (&String, &ConfigOption)> {
         self.options.iter()
     }
 
