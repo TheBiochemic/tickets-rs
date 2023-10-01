@@ -34,6 +34,12 @@ It is rather easy though:
 * If you navigate out of the _target_ folder, you should find an _assets_ folder. Copy it into the same folder as the executable. It contains all the images, the app needs.
 * _(Optional)_ make a shortcut to the executable.
 
+## Getting started (with Binaries)
+
+There is a new branch available called _releases_. In there you should be able to find the zip files of the binaries, so you can just download the version you need, unpack it and run it.
+
+* [Go to Windows 10+ Releases Folder](https://github.com/TheBiochemic/tickets-rs/tree/releases/win_versions)
+
 ## Contributors
 
 The Tool is written by me, _Robert Lang (Biochemic)_ as a Project to learn Rust and advance my
