@@ -1,3 +1,5 @@
 (
-    latest_version: (0, 1, 0)
+    latest_versions:[
+        ("windows", 0, 1, 0)
+    ]
 )
