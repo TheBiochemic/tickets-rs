@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use egui::Color32;
+use eframe::egui::Color32;
 use std::fmt::Write;
 use std::str;
 

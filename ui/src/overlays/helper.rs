@@ -2,9 +2,19 @@ use std::{collections::{hash_map::RandomState, HashMap}, ops::Deref, sync::{Arc,
 
 use chrono::{DateTime, Utc, Datelike, Duration, Timelike};
 use eframe::Theme;
-use egui::{Ui, Color32, Layout, Align, Vec2, Label, style::Margin, Frame, ComboBox, Separator, Button, ScrollArea, TextEdit, RichText, DragValue, TextStyle, menu, TextureHandle, ColorImage, Image, Area, color_picker::{color_picker_color32, Alpha}, color::Hsva, Slider, Visuals, TextBuffer, Checkbox};
-use tickets_rs_core::{Bucket, Ticket, Tag, TicketProvider, Config, ToConfig, StateIdentifier};
-use crate::{UITheme, overlays::{OverlayAction, DialogOptions}, Overlay, UserInterface, UIHelper, UIController, TagCacheKey};
+use eframe::egui::{
+    Ui, Color32, Layout, 
+    Align, Vec2, Label, 
+    style::Margin, Frame, 
+    ComboBox, Separator, Button, 
+    ScrollArea, TextEdit, RichText, 
+    DragValue, TextStyle, menu, 
+    TextureHandle, ColorImage, 
+    Image,  
+    Slider, Visuals, TextBuffer, Checkbox, color_picker::{color_edit_button_rgb, color_edit_button_rgba, Alpha}, Rgba};
+use egui_extras::DatePickerButton;
+use tickets_rs_core::{Bucket, Tag, TicketProvider, Config, ToConfig, StateIdentifier};
+use crate::{UITheme, overlays::DialogOptions, UserInterface, UIHelper, UIController, TagCacheKey};
 
 
 pub struct OverlayHelper;
@@ -70,7 +80,6 @@ impl OverlayHelper {
      */
     pub fn helper_update_color(ui: &mut Ui, ui_theme: &UITheme, label_text: &str, mut color: &mut Color32) {
         let font_size = ui_theme.font_size as f32;
-        let mut hsva = Hsva::from(*color);
 
         ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
             // ui.set_max_height(font_size * 1.5);
@@ -83,35 +92,34 @@ impl OverlayHelper {
                     ui.spacing_mut().slider_width = ui.available_width() * 1.00 - font_size * 10.0 ;
 
                     let mut changes = 0;
+                    let mut color_rgba = Rgba::from(*color);
 
-                    let button = Button::new(RichText::new("").size(font_size)).fill(*color);
+                    ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
 
-                    let button_response = UIHelper::extend_tooltip(ui.add(button), ui_theme, "Click to generate new random color.");
+                        ui.set_max_height(font_size);
 
-                    if button_response.clicked() {
+                        let mut response = ui.button("Random");
+                        response = UIHelper::extend_tooltip(response, ui_theme, "Click to generate new random color.");
 
-                        let (hue, sat, val) = Tag::generate_random_color(0.0 .. 1.0, 0.0 .. 1.0, 0.0 .. 1.0);
-                        hsva.h = hue;
-                        hsva.s = sat;
-                        hsva.v = val;
-                        changes += 1;
+                        if response.clicked() {
 
-                    };
+                            let (hue, sat, val) = Tag::generate_random_color(0.0 .. 1.0, 0.0 .. 1.0, 0.0 .. 1.0);
+                            let color_values = Tag::hsv_to_rgb(hue, sat, val);
+                            color_rgba = Rgba::from_srgba_unmultiplied(color_values.0, color_values.1, color_values.2, u8::MAX);
+                            changes += 1;
 
-                    if ui.add(Slider::new(&mut hsva.h, 0.0..=1.0).text("Hue")).changed() {
-                        changes += 1;
-                    };
+                        }
 
-                    if ui.add(Slider::new(&mut hsva.s, 0.0..=1.0).text("Saturation")).changed() {
-                        changes += 1;
-                    };
-
-                    if ui.add(Slider::new(&mut hsva.v, 0.0..=1.0).text("Value")).changed() {
-                        changes += 1;
-                    };
+                        ui.spacing_mut().interact_size.x = ui.available_width();
+                        if color_edit_button_rgba(ui, &mut color_rgba, Alpha::Opaque).changed() {
+                            changes += 1;
+                        }
+                    });
+                    
+                    
 
                     if changes > 0 {
-                        *color = Color32::from(hsva);
+                        *color = Color32::from(color_rgba);
                     };
                     
                 });
@@ -289,7 +297,7 @@ impl OverlayHelper {
                                     Vec2{ x: ui.available_width() * 0.75, y: font_size * 1.5 }, 
                                     TextEdit::singleline(assigned_text))
                                     .on_hover_text_at_pointer("Add multiple users at once by separating them with a comma.").lost_focus() && 
-                                    ui.input().key_pressed(egui::Key::Enter) {
+                                    ui.input(|i| i.key_pressed(egui::Key::Enter)) {
                                         assignees.push(assigned_text.trim().to_string());
                                         *assigned_to = assignees.join(", ");
                                         assigned_text.clear();
@@ -361,251 +369,64 @@ impl OverlayHelper {
 
     }
 
-    pub fn helper_update_due(ui: &mut Ui, ui_theme: &UITheme, due_date: &mut DateTime<Utc>) -> Option<u64> {
+    pub fn helper_update_due(ui: &mut Ui, ui_theme: &UITheme, due_date: &mut DateTime<Utc>) -> Option<i64> {
 
-        let timezone = chrono::Local::now().offset().clone();
+        let timezone = *chrono::Local::now().offset();
         let font_size = ui_theme.font_size as f32;
-        let date_view = due_date.with_timezone(&timezone).naive_local();
+        let time = due_date.with_timezone(&timezone).time();
+        let mut date = due_date.date().with_timezone(&timezone).naive_local();
+        let mut changed = false;
 
         ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-            //ui.set_max_height(font_size * 3.0);
-            //ui.set_max_width(available_width);
 
             ui.group(|ui| {
 
-                ui.set_max_width((ui.available_width() * 0.75) - 3.0);
-                ui.with_layout(Layout::top_down(Align::Min), |ui| {
+                ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
 
-                    let mut year: i32 = date_view.year();
-                    let mut month: i32 = date_view.month() as i32;
-                    let mut day: i32 = date_view.day() as i32;
-                    let mut hour: i32 = date_view.hour() as i32;
-                    let mut minute: i32 = date_view.minute() as i32;
+                    ui.set_max_width((ui.available_width() * 0.75) - 3.0);
 
-                    let mut year_changed = false;
-                    let mut month_changed = false;
-                    let mut day_changed = false;
-                    let mut hour_changed = false;
-                    let mut minute_changed = false;
+                    ui.menu_button("...", |ui| {
 
-                    if ui.available_width() > 35.0 * font_size {
+                        if ui.button("set to today").clicked() {
+                            *due_date = Utc::now();
+                            changed = true;
+                            ui.close_menu();
+                        }
 
-                        let row_width = ui.available_width() * 0.75;
-                        let col_width = row_width / 6.0;
-                        let spacing = font_size / 4.0;
+                        if ui.button("set to tomorrow").clicked() {
+                            *due_date = Utc::now() + Duration::days(1);
+                            changed = true;
+                            ui.close_menu();
+                        }
 
-                        ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-
-                            if ui.add_sized(
-                                Vec2::new(col_width - spacing, font_size),
-                                DragValue::new(&mut minute)
-                                    .speed(0.25)
-                                    .custom_formatter(|n, _| format!("{:0>2}", n as i32))
-                            ).on_hover_text_at_pointer("The minutes of that Property. Drag up or down to change it.")
-                            .changed() {
-                                minute = minute / 5 * 5;
-                                minute_changed = true;
-                            };
-
-                            ui.add_space(spacing);
-
-                            if ui.add_sized(
-                                Vec2::new(col_width, font_size),
-                                DragValue::new(&mut hour)
-                                    .speed(0.05)
-                                    .custom_formatter(|n, _| format!("{:0>2}", n as i32))
-                            ).on_hover_text_at_pointer("The hour (24h) of that Property. Drag up or down to change it.")
-                            .changed() {
-                                hour_changed = true;
-                            };
-
-                            ui.horizontal(|ui| {
-                                ui.set_max_width(col_width - spacing * 4.0);
-                                ui.add_sized(Vec2::new(col_width - spacing * 4.0, font_size), Label::new(":"));
-                            });
-
-                            if ui.add_sized(
-                                Vec2::new(col_width - spacing, font_size),
-                                DragValue::new(&mut day)
-                                    .speed(0.1)
-                                    .custom_formatter(|n, _| format!("{:0>2}", n as i32))
-                            ).on_hover_text_at_pointer("The day of the month of that Property. Drag up or down to change it.")
-                            .changed() {
-                                day_changed = true;
-                            };
-
-                            ui.add_space(spacing);
-
-                            if ui.add_sized(
-                                Vec2::new(col_width - spacing, font_size),
-                                DragValue::new(&mut month)
-                                    .speed(0.05)
-                                    .custom_formatter(|n, _| format!("{:0>2}", n as i32))
-                            ).on_hover_text_at_pointer("The month of that Property. Drag up or down to change it.")
-                            .changed() {
-                                month_changed = true;
-                            };
-
-                            ui.add_space(spacing);
-
-                            if ui.add_sized(
-                                Vec2::new(col_width, font_size),
-                                DragValue::new(&mut year)
-                                    .speed(0.05)
-                                    .custom_formatter(|n, _| format!("{:0>4}", n as i32))
-                            ).on_hover_text_at_pointer("The year of that Property. Drag up or down to change it.")
-                            .changed() {
-                                year_changed = true;
-                            };
-
-                            ui.add_space(font_size / 2.0);
-                            ui.label("Date/Time:")
-    
-                        });
-
-                    } else {
-
-                        let spacing = font_size / 4.0;
-                        let row_width = ui.available_width() * 0.75;
-                        let col_width = row_width / 3.3;
-
-                        ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-
-                            if ui.add_sized(
-                                Vec2::new(col_width - spacing, font_size),
-                                DragValue::new(&mut day)
-                                    .speed(0.1)
-                                    .custom_formatter(|n, _| format!("{:0>2}", n as i32))
-                            ).on_hover_text_at_pointer("The day of the month of that Property. Drag up or down to change it.")
-                            .changed() {
-                                day_changed = true;
-                            };
-
-                            ui.add_space(spacing);
-
-                            if ui.add_sized(
-                                Vec2::new(col_width - spacing, font_size),
-                                DragValue::new(&mut month)
-                                    .speed(0.05)
-                                    .custom_formatter(|n, _| format!("{:0>2}", n as i32))
-                            ).on_hover_text_at_pointer("The month of that Property. Drag up or down to change it.")
-                            .changed() {
-                                month_changed = true;
-                            };
-
-                            ui.add_space(spacing);
-
-                            if ui.add_sized(
-                                Vec2::new(col_width, font_size),
-                                DragValue::new(&mut year)
-                                    .speed(0.05)
-                                    .custom_formatter(|n, _| format!("{:0>4}", n as i32))
-                            ).on_hover_text_at_pointer("The year of that Property. Drag up or down to change it.")
-                            .changed() {
-                                year_changed = true;
-                            };
-
-                            ui.add_space(font_size / 2.0);
-                            ui.label("Date:")
-                        });
-
-                        let col_width = (row_width + font_size - spacing) / 2.2;
-
-                        ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-
-                            if ui.add_sized(
-                                Vec2::new(col_width - spacing, font_size),
-                                DragValue::new(&mut minute)
-                                    .speed(0.25)
-                                    .custom_formatter(|n, _| format!("{:0>2}", n as i32))
-                            ).on_hover_text_at_pointer("The minutes of that Property. Drag up or down to change it.")
-                            .changed() {
-                                minute = minute / 5 * 5;
-                                minute_changed = true;
-                            };
-
-                            ui.add_space(spacing);
-
-                            if ui.add_sized(
-                                Vec2::new(col_width, font_size),
-                                DragValue::new(&mut hour)
-                                    .speed(0.05)
-                                    .custom_formatter(|n, _| format!("{:0>2}", n as i32))
-                            ).on_hover_text_at_pointer("The hour (24h) of that Property. Drag up or down to change it.")
-                            .changed() {
-                                hour_changed = true;
-                            };
-
-                            ui.add_space(font_size / 2.0);
-                            ui.label("Time:")
-                        });
+                        if ui.button("set to next week").clicked() {
+                            *due_date = Utc::now() + Duration::days(7);
+                            changed = true;
+                            ui.close_menu();
+                        }
 
                         ui.separator();
-                    }
 
-                    if minute_changed {
-                        if let Some(new_date_view) = date_view.with_minute(minute as u32) {
-                            *due_date = new_date_view.and_local_timezone(timezone).unwrap().naive_utc().and_local_timezone(Utc).unwrap();
+                        if ui.button("add day").clicked() {
+                            *due_date += Duration::days(1);
+                            changed = true;
+                            ui.close_menu();
                         }
-                    }
 
-                    if hour_changed {
-                        if let Some(new_date_view) = date_view.with_hour(hour as u32) {
-                            *due_date = new_date_view.and_local_timezone(timezone).unwrap().naive_utc().and_local_timezone(Utc).unwrap();
+                        if ui.button("add week").clicked() {
+                            *due_date += Duration::days(7);
+                            changed = true;
+                            ui.close_menu();
                         }
-                    }
 
-                    if day_changed {
-                        if let Some(new_date_view) = date_view.with_day(day as u32) {
-                            *due_date = new_date_view.and_local_timezone(timezone).unwrap().naive_utc().and_local_timezone(Utc).unwrap();
-                        }
-                    }
-
-                    if month_changed {
-                        if let Some(new_date_view) = date_view.with_month(month as u32) {
-                            *due_date = new_date_view.and_local_timezone(timezone).unwrap().naive_utc().and_local_timezone(Utc).unwrap();
-                        }
-                    }
-
-                    if year_changed {
-                        if let Some(new_date_view) = date_view.with_year(year) {
-                            *due_date = new_date_view.and_local_timezone(timezone).unwrap().naive_utc().and_local_timezone(Utc).unwrap();
-                        }
-                    }
-
-                    ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-                        ui.menu_button("More Options", |ui| {
-    
-                            if ui.button("set to today").clicked() {
-                                *due_date = Utc::now();
-                                ui.close_menu();
-                            }
-    
-                            if ui.button("set to tomorrow").clicked() {
-                                *due_date = Utc::now() + Duration::days(1);
-                                ui.close_menu();
-                            }
-
-                            if ui.button("set to next week").clicked() {
-                                *due_date = Utc::now() + Duration::days(7);
-                                ui.close_menu();
-                            }
-
-                            ui.separator();
-
-                            if ui.button("add day").clicked() {
-                                *due_date += Duration::days(1);
-                                ui.close_menu();
-                            }
-
-                            if ui.button("add week").clicked() {
-                                *due_date += Duration::days(7);
-                                ui.close_menu();
-                            }
-
-                        })
                     });
 
+                    if ui.add_sized([ui.available_width(), font_size], DatePickerButton::new(&mut date)).changed() {
+                        *due_date = DateTime::<Utc>::from_local(date.and_time(time), chrono::offset::Utc);
+                        changed = true;
+                    };
+
+                    
                 });
             });
 
@@ -613,7 +434,12 @@ impl OverlayHelper {
             ui.label("Due at:");
         });
 
-        None
+        if changed {
+            Some(due_date.timestamp_millis())
+        } else {
+            None
+        }
+        
     }
 
     pub fn helper_update_text(ui: &mut Ui, ui_theme: &UITheme, title: &mut String, button_label: &str) -> bool {
@@ -712,7 +538,7 @@ impl OverlayHelper {
         let font_size = ui_theme.font_size as f32;
 
         ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-            ui.set_max_height(font_size * 10.0);
+            ui.set_max_height(font_size * 15.0);
             ui.set_max_width(ui.available_width() * 0.75);
 
             ui.group(|ui| {
@@ -873,7 +699,7 @@ impl OverlayHelper {
         icon_size: f32) {
             let mut icon = UserInterface::load_texture(icon_textures, icons, ui, icon_name);
             if let Some(mut icon) = icon {
-                let mut image = Image::new(&mut icon, Vec2::splat(icon_size));
+                let mut image = Image::new(&icon).max_size(Vec2::splat(icon_size));
                 ui.add(image);
             } else {
                 ui.with_layout(Layout::top_down(Align::Min), |ui| {
@@ -934,6 +760,42 @@ impl OverlayHelper {
         match ticket_provider.lock() {
             Ok(lock) => {
 
+            // View and Add available Adapters
+            let available_adapters = lock.list_available_adapter_types();
+            if !available_adapters.is_empty() {
+                ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                    ui.set_max_height(font_size * 10.0);
+                    ui.set_max_width(ui.available_width() * 0.75);
+        
+                    ScrollArea::new([false, true])
+                        .id_source("available_extensions_scroll_area")
+                        .auto_shrink([false, true])
+                        .show(ui, |ui| {
+        
+                            ui.group(|ui| {
+        
+                                ui.with_layout(Layout::top_down_justified(Align::Min), |ui| {
+        
+                                        for available_adapter in available_adapters {
+                                            if ui.button(&available_adapter.fancy_name).clicked() {
+
+                                                if let Some(found_config) = lock.get_type_config(&available_adapter.name) {
+                                                    *adapter_config = Some(found_config);
+                                                }
+
+                                            };
+                                        }
+                                });
+        
+                            });
+        
+                    });
+        
+                    ui.add_space(font_size);
+                    ui.label("Available:");
+                });
+            }
+
             // Editing a currently open Adapter Config
             let mut abort_config = false;
             let mut finish_config = false;
@@ -942,7 +804,7 @@ impl OverlayHelper {
                 Some(config) => {
 
                     ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-                        ui.set_max_height(font_size * 10.0);
+                        ui.set_max_height(font_size * 15.0);
                         ui.set_max_width(ui.available_width() * 0.75);
             
                         ScrollArea::new([false, true])
@@ -954,6 +816,18 @@ impl OverlayHelper {
             
                                     ui.with_layout(Layout::top_down_justified(Align::Min), |ui| {
                 
+                                        ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                                            if ui.button("Add Extension").clicked() {
+                                                finish_config = true;
+                                            }
+
+                                            if ui.button("Abort").clicked() {
+                                                abort_config = true;
+                                            }
+                                        });
+
+                                        ui.separator();
+
                                         for option in config.iter() {
 
                                             match option.1.display_options().as_str() {
@@ -1047,15 +921,7 @@ impl OverlayHelper {
 
                                         };
 
-                                        ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-                                            if ui.button("Add Extension").clicked() {
-                                                finish_config = true;
-                                            }
-
-                                            if ui.button("Abort").clicked() {
-                                                abort_config = true;
-                                            }
-                                        });
+                                        
                                     });
             
                                 });
@@ -1108,9 +974,20 @@ impl OverlayHelper {
                                     ui.with_layout(Layout::top_down_justified(Align::Min), |ui| {
             
                                             for adapter in lock.list_adapter_refs() {
-                                                if ui.button("🗙 ".to_owned() + adapter.get_fancy_name().as_str()).clicked() {
-                                                    lock.drop_adapter(adapter.get_name(), true);
-                                                };
+                                                ui.menu_button("🗙 ".to_owned() + adapter.get_fancy_name().as_str(), |ui| {
+
+                                                    let response = ui.add(
+                                                        Button::new("Are you sure, you want to delete this Adapter?")
+                                                        .fill(ui_theme.background_error)
+                                                    );
+
+                                                    if response.clicked() {
+                                                        lock.drop_adapter(adapter.get_name(), true);
+                                                        ui.close_menu();
+                                                    };
+
+                                                });
+                                                
                                             }
                                     });
             
@@ -1120,42 +997,6 @@ impl OverlayHelper {
             
                         ui.add_space(font_size);
                         ui.label("Installed:");
-                    });
-                }
-
-                // View and Add available Adapters
-                let available_adapters = lock.list_available_adapter_types();
-                if !available_adapters.is_empty() {
-                    ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-                        ui.set_max_height(font_size * 10.0);
-                        ui.set_max_width(ui.available_width() * 0.75);
-            
-                        ScrollArea::new([false, true])
-                            .id_source("available_extensions_scroll_area")
-                            .auto_shrink([false, true])
-                            .show(ui, |ui| {
-            
-                                ui.group(|ui| {
-            
-                                    ui.with_layout(Layout::top_down_justified(Align::Min), |ui| {
-            
-                                            for available_adapter in available_adapters {
-                                                if ui.button(&available_adapter.fancy_name).clicked() {
-
-                                                    if let Some(found_config) = lock.get_type_config(&available_adapter.name) {
-                                                        *adapter_config = Some(found_config);
-                                                    }
-
-                                                };
-                                            }
-                                    });
-            
-                                });
-            
-                        });
-            
-                        ui.add_space(font_size);
-                        ui.label("Available:");
                     });
                 }
                 
@@ -1188,7 +1029,7 @@ impl OverlayHelper {
                                 if ui.add_sized(
                                     Vec2{ x: ui.available_width() * 0.75, y: font_size * 1.5 }, 
                                     TextEdit::singleline(tag_text)).lost_focus() && 
-                                    ui.input().key_pressed(egui::Key::Enter) {
+                                    ui.input(|i| i.key_pressed(egui::Key::Enter)) {
                                         ticket_tags.push(tag_text.clone());
                                         tag_text.clear();
                                 }

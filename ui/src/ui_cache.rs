@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use egui::Color32;
+use eframe::egui::Color32;
 use egui_commonmark::CommonMarkCache;
 use tickets_rs_core::StateIdentifier;
 

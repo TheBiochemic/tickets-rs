@@ -1,7 +1,7 @@
-use egui::{
+use chrono::{Utc, DateTime, TimeZone};
+use eframe::egui::{
     Frame, 
-    Response, 
-    Ui, 
+    Response, Ui, 
     TextureHandle, 
     Vec2, 
     Image, 
@@ -11,6 +11,7 @@ use egui::{
     style::Margin
 };
 
+use egui::{Layout, Label};
 use egui_commonmark::{
     CommonMarkCache, 
     CommonMarkViewer
@@ -156,8 +157,13 @@ impl UserInterface {
         ticket: &Ticket, 
         theme: &UITheme, 
         icon: Option<TextureHandle>,
-        cache: &UICache
+        cache: &UICache,
+        available_width: f32
     ) -> TicketAction {
+
+        ui.set_min_width(available_width);
+        ui.set_max_width(available_width);
+
         let mut action = TicketAction::None;
 
         let half_font = theme.font_size as f32 / 2.0;
@@ -178,15 +184,15 @@ impl UserInterface {
         main_group = main_group.inner_margin(Margin::same(half_font));
         let response = main_group.show(ui, |ui| {
             ui.vertical(|ui| {
-                let width = ui.available_width() - half_font;
-                ui.set_width_range(width ..= width);
+                ui.set_min_width(available_width - half_font * 2.0);
+                ui.set_max_width(available_width - half_font * 2.0);
 
                 ui.horizontal_wrapped(|ui| {
 
                     match icon {
                         Some(mut found_icon) => {
 
-                            let mut image = Image::new(&mut found_icon, Vec2 { x: font_size, y: font_size });
+                            let mut image = Image::new(&found_icon).fit_to_exact_size(Vec2 { x: font_size, y: font_size });
                             image = image.tint(title_color);
                             ui.add(image).on_hover_text_at_pointer(&ticket.adapter);
                         },
@@ -201,6 +207,13 @@ impl UserInterface {
                     }.clicked() {
                         action = TicketAction::UpdateState(Identifier::new(&ticket.adapter, ticket.id));
                     };
+
+                    ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                        let datetime = Utc.timestamp_opt(ticket.due_at/1000, 0).single();
+                        if let Some(datetime) = datetime {
+                            ui.add(Label::new(format!("Due at {}", datetime.date_naive())).wrap(false));
+                        };
+                    });
 
                     ui.add_space(half_font);
 
@@ -269,8 +282,12 @@ impl UserInterface {
         ticket: &Ticket, 
         theme: &UITheme, 
         icon: Option<TextureHandle>, 
-        cache: &mut UICache
+        cache: &mut UICache,
+        available_width: f32
     ) -> TicketAction {
+
+        ui.set_min_width(available_width);
+        ui.set_max_width(available_width);
 
         let font_size = theme.font_size as f32;
         let half_font = theme.font_size as f32 / 2.0;
@@ -295,15 +312,16 @@ impl UserInterface {
         let response = main_group.show(ui, |ui| {
 
             ui.vertical(|ui| {
-                let width = ui.available_width() - half_font;
-                ui.set_width_range(width ..= width);
+                let width = available_width - half_font * 2.0;
+                ui.set_min_width(width);
+                ui.set_max_width(width);
 
                 ui.horizontal_wrapped(|ui| {
 
                     match icon {
                         Some(mut found_icon) => {
 
-                            let mut image = Image::new(&mut found_icon, Vec2 { x: font_size, y: font_size });
+                            let mut image = Image::new(&found_icon).fit_to_exact_size(Vec2 { x: font_size, y: font_size });
                             image = image.tint(title_color);
                             ui.add(image).on_hover_text_at_pointer(&ticket.adapter);
                         },
@@ -318,6 +336,14 @@ impl UserInterface {
                     }.clicked() {
                         action = TicketAction::UpdateState(Identifier::new(&ticket.adapter, ticket.id));
                     };
+
+                    ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                        let datetime = Utc.timestamp_opt(ticket.due_at/1000, 0).single();
+                        if let Some(datetime) = datetime {
+                            ui.label(format!("Due at {}", datetime.date_naive()));
+                        };
+                        
+                    });
 
                     ui.add_space(half_font);
 
@@ -401,8 +427,12 @@ impl UserInterface {
         ticket: &Ticket, 
         theme: &UITheme, 
         icon: Option<TextureHandle>, 
-        cache: &mut UICache
+        cache: &mut UICache,
+        available_width: f32
     ) -> TicketAction {
+
+        ui.set_min_width(available_width);
+        ui.set_max_width(available_width);
 
         let half_font = theme.font_size as f32 / 2.0;
         let double_font = theme.font_size as f32 * 2.0;
@@ -422,20 +452,22 @@ impl UserInterface {
         
 
         main_group = main_group.fill(ticket_background);
-
         main_group = main_group.inner_margin(Margin::same(double_font));
         let response = main_group.show(ui, |ui| {
 
+            
+
             ui.vertical(|ui| {
-                let width = ui.available_width() - half_font;
-                ui.set_width_range(width ..= width);
+                let width = available_width - double_font * 2.0;
+                ui.set_min_width(width);
+                ui.set_max_width(width);
 
                 ui.horizontal_wrapped(|ui| {
 
                     match icon {
                         Some(mut found_icon) => {
 
-                            let mut image = Image::new(&mut found_icon, Vec2 { x: double_font, y: double_font });
+                            let mut image = Image::new(&found_icon).fit_to_exact_size(Vec2 { x: double_font, y: double_font });
                             image = image.tint(title_color);
                             ui.add(image).on_hover_text_at_pointer(&ticket.adapter);
                         },
@@ -450,6 +482,14 @@ impl UserInterface {
                     }.clicked() {
                         action = TicketAction::UpdateState(Identifier::new(&ticket.adapter, ticket.id));
                     };
+
+                    ui.with_layout(Layout::right_to_left(egui::Align::Center), |ui| {
+                        let datetime = Utc.timestamp_opt(ticket.due_at/1000, 0).single();
+                        if let Some(datetime) = datetime {
+                            ui.label(format!("Due at {}", datetime.date_naive()));
+                        };
+                        
+                    });
 
                     ui.add_space(half_font);
 

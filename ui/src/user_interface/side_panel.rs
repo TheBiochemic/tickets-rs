@@ -1,4 +1,4 @@
-use egui::{
+use eframe::egui::{
     Ui, 
     SelectableLabel, 
     Align, Label, 
@@ -180,7 +180,7 @@ impl UserInterface {
 
     pub(crate) fn update_side_panel(&mut self, ctx: &egui::Context, ui: &mut Ui) {
 
-        let shift_or_ctrl = ctx.input().modifiers.shift || ctx.input().modifiers.ctrl;
+        let shift_or_ctrl = ctx.input(|i| i.modifiers.ctrl || i.modifiers.shift);
         let controller = &mut self.ui_controller;
         let ui_theme = &self.ui_theme;
         ScrollArea::vertical().show(ui, |ui| {

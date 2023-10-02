@@ -3,7 +3,7 @@ use std::collections::{
     hash_map::RandomState
 };
 
-use egui::{
+use eframe::egui::{
     Ui, 
     ColorImage, 
     TextureHandle, 

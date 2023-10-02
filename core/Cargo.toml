@@ -1,4 +1,5 @@
 [package]
+rust-version = "1.70"
 name = "tickets-rs-core"
 version = "0.1.0"
 authors = ["Robert Lang"]
@@ -7,5 +8,6 @@ description = "The Package containing the data model and some traits for tickets
 
 [dependencies]
 rusqlite = { version = "0.28.0", features = ["bundled"] }
-egui = { version = "0.19.0", features = ["color-hex"] } 
+egui = { version = "0.23.0", features = ["color-hex"] } 
+eframe = "0.23.0"
 rand = "0.8.5"

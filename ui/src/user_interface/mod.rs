@@ -9,12 +9,8 @@ use std::{
     ops::Deref
 };
 
-use eframe::{
-    HardwareAcceleration, 
-    epaint::Shadow
-};
-
-use egui::{
+use eframe::HardwareAcceleration;
+use eframe::egui::{
     Vec2, 
     Button, 
     style::Margin,
@@ -24,8 +20,7 @@ use egui::{
     Rounding, 
     Stroke, 
     SidePanel, 
-    ScrollArea, 
-    Color32,  
+    ScrollArea,  
     Align, 
     CentralPanel,  
     TextureHandle, 
@@ -35,7 +30,7 @@ use egui::{
     Area, 
     Align2, 
     Layout, 
-    TextStyle
+    TextStyle, Context, Color32, epaint::Shadow
 };
 
 use crate::{
@@ -77,8 +72,8 @@ impl UserInterface {
             icon_data: icon,
             //icon_data: None,
             initial_window_pos: None,
-            initial_window_size: Some(Vec2{x: 800.0, y: 600.0}),
-            min_window_size: Some(Vec2{x: 400.0, y: 200.0}),
+            initial_window_size: Some(eframe::egui::Vec2{x: 800.0, y: 600.0}),
+            min_window_size: Some(eframe::egui::Vec2{x: 400.0, y: 200.0}),
             max_window_size: None,
             resizable: true,
             transparent: false,
@@ -91,6 +86,12 @@ impl UserInterface {
             follow_system_theme: false,
             default_theme: ui_theme.base_theme,
             run_and_return: true,
+            mouse_passthrough: false,
+            active: true,
+            centered: true,
+            app_id: Some("ticket-rs".into()),
+            persist_window: true,
+            ..Default::default()
         };
 
         eframe::run_native(
@@ -111,7 +112,7 @@ impl UserInterface {
                             ui.ctx().load_texture(
                                 adapter_name,
                                 found_image.clone(),
-                                egui::TextureFilter::Linear
+                                egui::TextureOptions::LINEAR
                             )
                         })).cloned()
                     },
@@ -131,7 +132,7 @@ impl UserInterface {
                                     ui.ctx().load_texture(
                                         adapter_name,
                                         found_icon_data.clone(),
-                                        egui::TextureFilter::Linear
+                                        egui::TextureOptions::LINEAR
                                     )
                                 })).cloned()
                             },
@@ -163,7 +164,7 @@ impl UserInterface {
 
 impl eframe::App for UserInterface {
 
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &Context, frame: &mut eframe::Frame) {
 
         if !self.ui_controller.running {
             self.ui_controller.on_close_ui(&self.ui_theme, frame);
@@ -286,6 +287,9 @@ impl eframe::App for UserInterface {
 
                     ScrollArea::vertical()
                         .show(ui, |ui| {
+                            let width = ui.available_width();
+                            ui.set_min_width(width);
+                            ui.set_max_width(width);
                             ui.add_space(self.ui_theme.font_size as f32 / 2.0);
                             self.ui_controller.update_each_ticket(
                                 ui, 

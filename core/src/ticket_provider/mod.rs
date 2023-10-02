@@ -3,7 +3,7 @@ use std::{sync::{
     Arc
 }, time::{SystemTime, UNIX_EPOCH}};
 
-use egui::epaint::ahash::{HashMap, HashMapExt};
+use eframe::egui::epaint::ahash::{HashMap, HashMapExt};
 
 use crate::Config;
 

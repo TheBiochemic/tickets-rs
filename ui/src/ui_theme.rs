@@ -1,7 +1,7 @@
-use std::{sync::{Arc, Mutex}};
-use egui::Color32;
-use egui::epaint::hex_color;
+use std::sync::{Arc, Mutex};
+use eframe::egui::Color32;
 use eframe::Theme;
+use egui::{hex_color, epaint};
 use tickets_rs_core::AppConfig;
 
 #[derive(Clone)]
@@ -60,15 +60,15 @@ impl UITheme {
     pub fn theme_dark() -> UITheme {
         UITheme {
             base_theme: Theme::Dark,
-            background_primary: hex_color!("#1a1a1aff"),
-            background_secondary: hex_color!("#252525ff"),
-            background_tertiary: hex_color!("#2d2d2dff"),
-            background_error: hex_color!("#381818ff"),
-            foreground_primary: hex_color!("#ccccccff"),
-            foreground_secondary: hex_color!("#808080ff"),
-            foreground_tertiary: hex_color!("#f5f5f5ff"),
-            foreground_marker: hex_color!("#896610ff"),
-            foreground_marker2: hex_color!("#daa520ff"),
+            background_primary: Color32::from_rgba_unmultiplied(0x1a, 0x1a, 0x1a, 0xff),
+            background_secondary: Color32::from_rgba_unmultiplied(0x25, 0x25, 0x25, 0xff),
+            background_tertiary: Color32::from_rgba_unmultiplied(0x2d, 0x2d, 0x2d, 0xff),
+            background_error: Color32::from_rgba_unmultiplied(0x38, 0x18, 0x18, 0xff),
+            foreground_primary: Color32::from_rgba_unmultiplied(0xcc, 0xcc, 0xcc, 0xff),
+            foreground_secondary: Color32::from_rgba_unmultiplied(0x80, 0x80, 0x80, 0xff),
+            foreground_tertiary: Color32::from_rgba_unmultiplied(0xf5, 0xf5, 0xf5, 0xff),
+            foreground_marker: Color32::from_rgba_unmultiplied(0x89, 0x66, 0x10, 0xff),
+            foreground_marker2: Color32::from_rgba_unmultiplied(0xda, 0xa5, 0x20, 0xff),
             font_size: 13,
             config: None,
         }
@@ -77,15 +77,15 @@ impl UITheme {
     pub fn theme_light() -> UITheme {
         UITheme {
             base_theme: Theme::Light,
-            background_primary: hex_color!("#e0e0e0ff"),
-            background_secondary: hex_color!("#b8b8b8ff"),
-            background_tertiary: hex_color!("#929292ff"),
-            background_error: hex_color!("#fb9897ff"),
-            foreground_primary: hex_color!("#2d2d2dff"),
-            foreground_secondary: hex_color!("#515151ff"),
-            foreground_tertiary: hex_color!("#131313ff"),
-            foreground_marker: hex_color!("#664f17ff"),
-            foreground_marker2: hex_color!("#2b2004ff"),
+            background_primary: Color32::from_rgba_unmultiplied(0xe0, 0xe0, 0xe0, 0xff),
+            background_secondary: Color32::from_rgba_unmultiplied(0xb8, 0xb8, 0xb8, 0xff),
+            background_tertiary: Color32::from_rgba_unmultiplied(0x92, 0x92, 0x92, 0xff),
+            background_error: Color32::from_rgba_unmultiplied(0xfb, 0x98, 0x97, 0xff),
+            foreground_primary: Color32::from_rgba_unmultiplied(0x2d, 0x2d, 0x2d, 0xff),
+            foreground_secondary: Color32::from_rgba_unmultiplied(0x51, 0x51, 0x51, 0xff),
+            foreground_tertiary: Color32::from_rgba_unmultiplied(0x13, 0x13, 0x13, 0xff),
+            foreground_marker: Color32::from_rgba_unmultiplied(0x66, 0x4f, 0x17, 0xff),
+            foreground_marker2: Color32::from_rgba_unmultiplied(0x2b, 0x20, 0x04, 0xff),
             font_size: 13,
             config: None,
         }

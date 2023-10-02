@@ -1,4 +1,5 @@
 [package]
+rust-version = "1.70"
 name = "tickets-rs-adapters"
 version = "0.1.0"
 authors = ["Robert Lang"]

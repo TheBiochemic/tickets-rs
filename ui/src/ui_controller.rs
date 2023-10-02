@@ -3,7 +3,7 @@ use std::{sync::{Arc, Mutex}, collections::HashMap, rc::Rc, cell::RefCell, fs::F
 use chrono::{DateTime, NaiveDateTime, Utc, TimeZone};
 use eframe::IconData;
 use std::fmt::Write;
-use egui::{Ui, SelectableLabel, ColorImage, TextureHandle, Color32};
+use eframe::egui::{Ui, SelectableLabel, ColorImage, TextureHandle, Color32};
 use tickets_rs_core::{AppConfig, TicketProvider, BucketPanelLocation, BucketPanelLocationType, Ticket, Tag, Bucket, AdapterError, TicketAdapter, State, FilterType, Filter, FilterIdentifier, StateIdentifier, BucketIdentifier};
 
 use crate::{UserInterface, UITheme, Overlay, overlays::{NewTicketData, OverlayAction, NewTagData, WizardData, UpdateTicketData, NewStateData, NewBucketData, UpdateTicketDataBucket, UpdateTicketDataAssign, EditTicketData, PreferenceData, DeleteAdapterData, NewFilterData, DeleteFilterData, EditFilterData, DeleteBucketData, UpdateTicketDataAdapter}, UICache, user_interface::SidePanelAction, TagsCache, TagCacheKey};
@@ -411,23 +411,25 @@ impl UIController {
 
         let mut action = TicketAction::None;
 
+        let max_width = ui.available_width() - (theme.font_size as f32) * 1.5 ;
+
         for ticket in &self.visible_tickets {
             let ticket_icon = UserInterface::load_texture(icon_textures, icons, ui, &ticket.adapter);
             
 
             let temp_action = match self.ticket_view_mode {
                 TicketViewMode::Regular => {
-                    let temp_action = UserInterface::update_ticket_regular(ui, &ticket, theme, ticket_icon, cache);
+                    let temp_action = UserInterface::update_ticket_regular(ui, &ticket, theme, ticket_icon, cache, max_width);
                     ui.add_space(8.0);
                     temp_action
                 },
                 TicketViewMode::Half => {
-                    let temp_action = UserInterface::update_ticket_half(ui, &ticket, theme, ticket_icon, cache);
+                    let temp_action = UserInterface::update_ticket_half(ui, &ticket, theme, ticket_icon, cache, max_width);
                     ui.add_space(4.0);
                     temp_action
                 },
                 TicketViewMode::List => {
-                    let temp_action = UserInterface::update_ticket_list(ui, &ticket, theme, ticket_icon, cache);
+                    let temp_action = UserInterface::update_ticket_list(ui, &ticket, theme, ticket_icon, cache, max_width);
                     ui.add_space(2.0);
                     temp_action
                 },

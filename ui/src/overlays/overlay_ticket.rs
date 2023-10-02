@@ -1,7 +1,7 @@
 use std::collections::{hash_map::RandomState, HashMap};
 
 use chrono::{Utc, DateTime};
-use egui::{Ui, Color32};
+use eframe::egui::{Ui, Color32};
 use tickets_rs_core::{Bucket, Ticket};
 
 use crate::{Overlay, UITheme, UIController, UICache};
@@ -226,7 +226,7 @@ impl Overlay {
             OverlayHelper::helper_update_assigned(ui, ui_theme, &mut ticket_data.ticket.assigned_to, &mut ticket_data.assigned_text, &ticket_data.username);
             OverlayHelper::helper_update_small_spacer(ui, ui_theme);
             if let Some(new_ts) = OverlayHelper::helper_update_due(ui, ui_theme, &mut ticket_data.due_date) {
-                ticket_data.ticket.due_at = new_ts as i64;
+                ticket_data.ticket.due_at = new_ts;
             }
         });
     
@@ -274,7 +274,7 @@ impl Overlay {
             OverlayHelper::helper_update_assigned(ui, ui_theme, &mut ticket_data.ticket.assigned_to, &mut ticket_data.assigned_text, &ticket_data.username);
             OverlayHelper::helper_update_small_spacer(ui, ui_theme);
             if let Some(new_ts) = OverlayHelper::helper_update_due(ui, ui_theme, &mut ticket_data.due_date) {
-                ticket_data.ticket.due_at = new_ts as i64;
+                ticket_data.ticket.due_at = new_ts;
             }
         });
     

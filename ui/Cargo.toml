@@ -1,4 +1,5 @@
 [package]
+rust-version = "1.70"
 name = "tickets-rs-ui"
 version = "0.1.0"
 authors = ["Robert Lang"]
@@ -8,9 +9,11 @@ description = "This crate contains all UI related things for tickets-rs, made wi
 [dependencies]
 tickets-rs-core = { version = "0.1", path = "../core" }
 
-egui = { version = "0.19.0", features = ["color-hex"] } 
-egui_commonmark = { version = "0.4.0", features = ["syntax_highlighting", "svg", "fetch"] }
-eframe = "0.19.0"
+egui = { version = "0.23.0", features = ["color-hex"] } 
+egui_extras = { version = "0.23.0", features = ["datepicker"]}
+# egui-datepicker = { version = "0.3.0" }
+egui_commonmark = { version = "0.8.0", features = ["svg", "fetch"] }
+eframe = "0.23.0"
 chrono = "0.4.22"
 timer = "0.2.0"
 png = "0.17.6"

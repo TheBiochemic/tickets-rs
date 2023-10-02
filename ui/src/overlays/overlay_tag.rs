@@ -1,4 +1,4 @@
-use egui::{Ui, Color32};
+use eframe::egui::{Ui, Color32};
 use tickets_rs_core::Tag;
 
 use crate::{

@@ -13,7 +13,7 @@ use std::collections::{
     HashMap, 
     hash_map::RandomState
 };
-use egui::{
+use eframe::egui::{
     Ui, 
     Color32, TextureHandle, ColorImage, Image, Vec2, RichText, Button, 
 };

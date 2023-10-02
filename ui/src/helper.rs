@@ -1,4 +1,4 @@
-use egui::{Response, RichText};
+use eframe::egui::{Response, RichText};
 
 use crate::UITheme;
 

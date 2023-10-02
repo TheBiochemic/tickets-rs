@@ -1,4 +1,4 @@
-use egui::Ui;
+use eframe::egui::Ui;
 use tickets_rs_core::Bucket;
 
 use crate::{Overlay, UITheme, UIController, UICache};

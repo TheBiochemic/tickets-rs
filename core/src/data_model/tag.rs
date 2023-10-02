@@ -102,8 +102,8 @@ impl Tag {
             }
         }
 
-        let (r, g, b) = Tag::_hsv_to_rgb(hue, sat, val);
-        let (rt, gt, bt) = Tag::_hsv_to_rgb(hue_text, sat_text, val_text);
+        let (r, g, b) = Tag::hsv_to_rgb(hue, sat, val);
+        let (rt, gt, bt) = Tag::hsv_to_rgb(hue_text, sat_text, val_text);
 
         let mut color_string = "#".to_string();
         write!(&mut color_string, "{:02x}{:02x}{:02x}{:02x}", r, g, b, 255).expect("Failed to create Color string in Tag");
@@ -134,7 +134,7 @@ impl Tag {
     //hue 0-1,
     //saturation 0-1,
     //value 0-1
-    fn _hsv_to_rgb(h: f32, s: f32, v: f32) -> (u8, u8, u8) {
+    pub fn hsv_to_rgb(h: f32, s: f32, v: f32) -> (u8, u8, u8) {
 
         let v2 = (255.0 * v) as u8;
 
