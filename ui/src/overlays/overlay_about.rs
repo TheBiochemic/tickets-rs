@@ -12,7 +12,7 @@ use eframe::egui::{
 
 use crate::{
     UITheme, 
-    Overlay
+    Overlay, APP_VERSION
 };
 
 use super::{
@@ -42,7 +42,7 @@ impl Overlay {
             });
     
             OverlayHelper::helper_update_card(ui, ui_theme, "Version".to_string(), |ui| {
-                ui.label("tickets.rs v2023.01");
+                ui.label(format!("tickets.rs v{}", APP_VERSION));
             });
     
             OverlayHelper::helper_update_card(ui, ui_theme, "History".to_string(), |ui| {
