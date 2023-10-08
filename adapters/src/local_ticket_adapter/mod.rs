@@ -19,16 +19,13 @@ use tickets_rs_core::{
     FilterType,
     Ticket};
 
-use tickets_rs_core::{
-    TicketAdapter
-};
+use tickets_rs_core::TicketAdapter;
 
 pub struct LocalTicketAdapter {
     database: Arc<Mutex<LocalDatabase>>,
     config: Arc<Mutex<AppConfig>>,
     name: String,
     display_name: String
-
 }
 
 impl LocalTicketAdapter {

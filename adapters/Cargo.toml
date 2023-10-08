@@ -10,3 +10,5 @@ description = "This Crate contains the implementations of the default adapters f
 tickets-rs-core = { version = "0.1", path = "../core" }
 
 rusqlite = { version = "0.28.0", features = ["bundled"] }
+octocrab = { version = "0.31.0" }
+futures = { version = "0.3.28" }

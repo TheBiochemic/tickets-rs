@@ -7,7 +7,10 @@ use std::{
     }, 
 };
 
-use tickets_rs_adapters::LocalTicketAdapter;
+use tickets_rs_adapters::{
+    LocalTicketAdapter,
+    GithubTicketAdapter
+};
 
 use tickets_rs_core::{
     AppConfig,
@@ -23,7 +26,8 @@ use tickets_rs_ui::{
 };
 
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let database = {
         let database = match LocalDatabase::open("./app_config.db3".to_string()) {
             Ok(success) => success,
@@ -38,7 +42,8 @@ fn main() {
     let ticket_provider = Arc::new(Mutex::new( {
         TicketProvider::new(configuration.clone(), vec![
 
-            AdapterType::new::<LocalTicketAdapter>()
+            AdapterType::new::<LocalTicketAdapter>(),
+            AdapterType::new::<GithubTicketAdapter>(),
 
         ])
     }));

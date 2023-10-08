@@ -15,7 +15,7 @@ use super::{
 pub struct Ticket {
     pub adapter: String,
     pub id: i64,
-    pub bucket_id: i64,
+    pub bucket_id: u64,
     pub title: String,
     pub assigned_to: String,
     pub state_name: String,

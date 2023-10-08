@@ -693,7 +693,7 @@ impl TicketProvider {
        Lists a singular Bucket. Not recommended to be used in Loops, it exists to get
        the most up to date version of a bucket, to make changes on.
      */
-    pub fn bucket_list_unique(&self, id: i64, adapter_name: &String) -> Option<Bucket> {
+    pub fn bucket_list_unique(&self, id: u64, adapter_name: &String) -> Option<Bucket> {
         let mut bucket: Option<Bucket> = None;
 
         match self.adapters.lock() {

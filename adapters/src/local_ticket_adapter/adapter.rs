@@ -583,7 +583,7 @@ impl TicketAdapter for LocalTicketAdapter {
         ticket_option
     }
 
-    fn bucket_list_unique(&self, id: i64) -> Option<Bucket> {
+    fn bucket_list_unique(&self, id: u64) -> Option<Bucket> {
         let mut bucket_option: Option<Bucket> = None;
 
         match self.database.lock() {
@@ -802,7 +802,7 @@ impl TicketAdapter for LocalTicketAdapter {
                             expression.push("(id, bucket_id, title, state_name, description, created_at, due_at, assigned_to) "); 
                             expression.push("VALUES (?, ?, ?, ?, ?, ?, ?, ?); ");
                             parameters.push(Value::Integer(ticket.id));
-                            parameters.push(Value::Integer(ticket.bucket_id));
+                            parameters.push(Value::Integer(ticket.bucket_id as i64));
                             parameters.push(Value::Text(ticket.title.clone()));
                             parameters.push(Value::Text(ticket.state_name.clone()));
                             parameters.push(Value::Text(ticket.description.clone()));
@@ -822,7 +822,7 @@ impl TicketAdapter for LocalTicketAdapter {
                             expression.push("INSERT INTO tickets ");
                             expression.push("(bucket_id, title, state_name, description, created_at, due_at, assigned_to) "); 
                             expression.push("VALUES (?, ?, ?, ?, ?, ?, ?) returning id; ");
-                            parameters.push(Value::Integer(ticket.bucket_id));
+                            parameters.push(Value::Integer(ticket.bucket_id as i64));
                             parameters.push(Value::Text(ticket.title.clone()));
                             parameters.push(Value::Text(ticket.state_name.clone()));
                             parameters.push(Value::Text(ticket.description.clone()));
@@ -1036,7 +1036,7 @@ impl TicketAdapter for LocalTicketAdapter {
                             let mut parameters: Vec<rusqlite::types::Value> = vec![];
 
                             expression.push("DELETE FROM buckets WHERE id = ?; ");
-                            parameters.push(Value::Integer(bucket.identifier.id));
+                            parameters.push(Value::Integer(bucket.identifier.id as i64));
 
                             let mut stmt_write = lock.prepare(expression.join("").as_str()).unwrap();
                             if let Err(err) = stmt_write.execute(rusqlite::params_from_iter(parameters)) {

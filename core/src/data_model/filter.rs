@@ -8,7 +8,7 @@ use crate::TicketAdapter;
 pub enum FilterType {
     User,
     #[default] Builtin,
-    Bucket(i64),
+    Bucket(u64),
     Tag,
     Other
 }

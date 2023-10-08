@@ -28,7 +28,7 @@ pub enum SidePanelAction {
     EntryClicked,
     EntryRemove,
     EntryEdit,
-    EntryBucketRemove(i64),
+    EntryBucketRemove(u64),
     Nothing,
 }
 

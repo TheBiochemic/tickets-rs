@@ -69,7 +69,7 @@ pub trait TicketAdapter {
        Lists a single Bucket this adapter can provide, defned by it's id.
        if the read fails, the function returns None
      */
-    fn bucket_list_unique(&self, id: i64) -> Option<Bucket>;
+    fn bucket_list_unique(&self, id: u64) -> Option<Bucket>;
 
     /**
        Tries to delete a bucket off this adapter. If the delete fails for

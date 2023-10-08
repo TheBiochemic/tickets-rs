@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex}, collections::HashMap, rc::Rc, cell::RefCell, fs::File, path::Path, time::SystemTime};
+use std::{sync::{Arc, Mutex}, collections::{HashMap, BTreeMap}, rc::Rc, cell::RefCell, fs::File, path::Path, time::SystemTime};
 
 use chrono::{DateTime, NaiveDateTime, Utc, TimeZone};
 use eframe::IconData;
@@ -40,7 +40,7 @@ pub mod ticket_actions {
 
     #[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
     pub enum TicketAction {
-        NewInBucket(Identifier<i64, Bucket>),
+        NewInBucket(Identifier<u64, Bucket>),
         Edit(Identifier<i64, Ticket>),
         Delete(Identifier<i64, Ticket>),
         UpdateDetails(Identifier<i64, Ticket>),
@@ -346,7 +346,7 @@ impl UIController {
         match self.ticket_provider.lock() {
             Ok(lock) => {
 
-                let mut adapters_index: HashMap<String, BucketPanelFolder> = HashMap::new();
+                let mut adapters_index: BTreeMap<String, BucketPanelFolder> = BTreeMap::new();
 
                 // Add a custom filters folder
                 let mut custom_filters = BucketPanelFolder {

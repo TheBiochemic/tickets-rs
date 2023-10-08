@@ -8,11 +8,11 @@ use crate::TicketAdapter;
 #[derive(Default, PartialEq, Clone, Eq, Hash, PartialOrd, Ord, Debug)]
 pub struct BucketIdentifier {
     pub adapter: String,
-    pub id: i64,
+    pub id: u64,
 }
 
 impl BucketIdentifier {
-    pub fn new(adapter: &String, id: i64) -> BucketIdentifier {
+    pub fn new(adapter: &String, id: u64) -> BucketIdentifier {
         BucketIdentifier {
             adapter: adapter.clone(),
             id
@@ -45,7 +45,7 @@ impl Bucket {
         self
     }
 
-    pub fn with_details(mut self, id: i64, name: String) -> Self {
+    pub fn with_details(mut self, id: u64, name: String) -> Self {
         self.identifier.id = id;
         self.name = name;
         self

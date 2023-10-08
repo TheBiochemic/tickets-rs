@@ -1,5 +1,6 @@
 use std::{collections::{hash_map::RandomState, HashMap}, ops::Deref, sync::{Arc, Mutex}};
 
+use arboard::Clipboard;
 use chrono::{DateTime, Utc, Datelike, Duration, Timelike};
 use eframe::Theme;
 use eframe::egui::{
@@ -160,7 +161,7 @@ impl OverlayHelper {
         });
     }
 
-    pub fn helper_update_bucket(ui: &mut Ui, ui_theme: &UITheme, bucket_id: &mut i64, buckets: &Vec<Bucket>, adapter: &String) {
+    pub fn helper_update_bucket(ui: &mut Ui, ui_theme: &UITheme, bucket_id: &mut u64, buckets: &Vec<Bucket>, adapter: &String) {
         let font_size = ui_theme.font_size as f32;
 
         let mut bucket_text = format!("Unknown Bucket ({})", bucket_id);
@@ -861,8 +862,23 @@ impl OverlayHelper {
                                                         //ui.set_max_width(ui.available_width() * 0.8);
                                                         let mut text = option.1.raw().clone();
 
+                                                        if ui.add_sized([font_size, font_size], Button::new("📋")).clicked() {
+                                                            match Clipboard::new() {
+                                                                Ok(mut clipboard) => {
+
+                                                                    match clipboard.get_text() {
+                                                                        Ok(pasted_text) => change_config = Some((option.0.clone(), pasted_text, "string".to_string())),
+                                                                        Err(err) => println!("{}", err),
+                                                                    };
+                                                                    
+                                                                },
+                                                                Err(err) => println!("{}", err),
+                                                            }
+                                                            
+                                                        }
+
                                                         if ui.add_sized(
-                                                            [total_line_width * 0.75, font_size], 
+                                                            [total_line_width * 0.75 - font_size, font_size], 
                                                             TextEdit::singleline(&mut text)
                                                         ).changed() {
                                                             change_config = Some((option.0.clone(), text, "string".to_string()));
