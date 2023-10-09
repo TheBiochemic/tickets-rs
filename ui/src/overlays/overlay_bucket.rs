@@ -90,7 +90,7 @@ impl OverlayAction {
 
         if action_successful {
             ui_controller.close_overlay();
-            ui_controller.update_bucket_panel_data();
+            ui_controller.trigger_bucket_panel_update();
         }
     }
 
@@ -132,7 +132,7 @@ impl OverlayAction {
         });
 
         if bucket_write_successful {
-            ui_controller.update_bucket_panel_data();
+            ui_controller.trigger_bucket_panel_update();
             ui_controller.close_overlay()
         }
     }

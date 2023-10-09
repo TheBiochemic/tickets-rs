@@ -39,6 +39,6 @@ impl OverlayAction {
         ui_controller.using_ticket_provider(|_, provider| {
              provider.drop_adapter(adapter_name.clone(), true);
         });
-        ui_controller.update_bucket_panel_data();
+        ui_controller.trigger_bucket_panel_update();
     }
 }

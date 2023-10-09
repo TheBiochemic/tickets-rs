@@ -121,6 +121,18 @@ impl Tag {
         self
     }
 
+    pub fn with_hex_color(mut self, text: &str) -> Self {
+
+        let without_prefix = text.trim_start_matches("#");
+        let r = u8::from_str_radix(without_prefix.get(..2).unwrap(), 16).unwrap();
+        let g = u8::from_str_radix(without_prefix.get(2..4).unwrap(), 16).unwrap();
+        let b = u8::from_str_radix(without_prefix.get(4..6).unwrap(), 16).unwrap();
+
+        self.color_text =  format!("#{:02x}{:02x}{:02x}{:02x}", r, g, b, 255);
+        self.color =  format!("#{:02x}{:02x}{:02x}{:02x}", r/3, g/3, b/3, 128);
+        self
+    }
+
     pub fn with_name(mut self, name: String) -> Self {
         self.name = name;
         self

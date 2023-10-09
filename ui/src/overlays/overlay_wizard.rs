@@ -125,7 +125,13 @@ impl Overlay {
         OverlayHelper::helper_update_spacer(ui, ui_theme);
 
         OverlayHelper::helper_update_section_collapsing(ui, ui_theme, "Extensions", true, |ui| {
-            OverlayHelper::helper_update_extensions(ui, ui_theme, ui_controller.ticket_provider.clone(), &mut wizard_data.extension_config);
+            OverlayHelper::helper_update_extensions(
+                ui, 
+                ui_theme, 
+                ui_controller.ticket_provider.clone(), 
+                &mut wizard_data.extension_config,
+                ui_controller.update_panel_data.clone()
+            );
         });
     }
 }
@@ -138,7 +144,7 @@ impl OverlayAction {
     ) {
         ui_controller.close_overlay();
         ui_controller.invalidate_cache(Some(cache));
-        ui_controller.update_bucket_panel_data();
+        ui_controller.trigger_bucket_panel_update();
         match ui_controller.configuration.lock() {
             Ok(mut config_lock) => {
                 config_lock.put("wizard", false, "");

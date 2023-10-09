@@ -49,7 +49,7 @@ impl TicketAdapter for LocalTicketAdapter {
     }
 
     
-    fn from_config(app_config: Arc<Mutex<AppConfig>>, config: &Config) -> Result<Box<dyn TicketAdapter + Send + Sync>, AdapterError> where Self: Sized {
+    fn from_config(app_config: Arc<Mutex<AppConfig>>, config: &Config, finished: Arc<Mutex<bool>>) -> Result<Box<dyn TicketAdapter + Send + Sync>, AdapterError> where Self: Sized {
 
         let name: String = match config.get("name") {
             Some(option) => match option.get() {

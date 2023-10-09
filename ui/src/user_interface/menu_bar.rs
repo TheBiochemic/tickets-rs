@@ -94,7 +94,7 @@ impl UserInterface {
 
                 // Handle the Events
                 if button_refresh.clicked() {
-                    self.ui_controller.update_bucket_panel_data();
+                    self.ui_controller.trigger_bucket_panel_update();
                     ui.close_menu();
                 }
 

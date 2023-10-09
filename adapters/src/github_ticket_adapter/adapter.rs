@@ -26,8 +26,9 @@ impl TicketAdapter for GithubTicketAdapter {
             .with("repo_owner", "", "string")
     }
 
-    fn from_config(app_config: Arc<Mutex<AppConfig>>, config: &Config) -> Result<Box<dyn TicketAdapter + Send + Sync>, AdapterError> where Self: Sized {
+    fn from_config(app_config: Arc<Mutex<AppConfig>>, config: &Config, finished: Arc<Mutex<bool>>) -> Result<Box<dyn TicketAdapter + Send + Sync>, AdapterError> where Self: Sized {
         
+        let mut auth_token = "".to_string();
 
         let octocrab = match config.get("personal_auth_token") {
             Some(config_option) => {
@@ -35,6 +36,7 @@ impl TicketAdapter for GithubTicketAdapter {
                 match config_option.get::<String>() {
                     Some(config_string) => {
                         if !config_string.is_empty() {
+                            auth_token = config_string.clone();
                             match Octocrab::builder().personal_token(config_string).build() {
                                 Ok(instance) => {
                                     Arc::new(instance)
@@ -97,11 +99,12 @@ impl TicketAdapter for GithubTicketAdapter {
             cached_tags: Default::default(),
             cached_states: Default::default(),
             octocrab,
+            auth_token,
             last_refresh: instant,
             owner,
         };
 
-        adapter.refresh_data();
+        adapter.full_refresh_data(finished);
 
         Ok(Box::new(adapter))
 
@@ -120,11 +123,19 @@ impl TicketAdapter for GithubTicketAdapter {
     }
 
     fn bucket_list_all(&self) -> Vec<tickets_rs_core::Bucket> {
-        self.cached_buckets.values().cloned().collect()
+        if let Ok(lock) = self.cached_buckets.lock() {
+            return lock.values().cloned().collect();
+        };
+
+        vec![]
     }
 
     fn bucket_list_unique(&self, id: u64) -> Option<tickets_rs_core::Bucket> {
-        self.cached_buckets.get(&id).cloned()
+        if let Ok(lock) = self.cached_buckets.lock() {
+            return lock.get(&id).cloned();
+        }
+
+        None
     }
 
     fn bucket_drop(&self, bucket: &tickets_rs_core::Bucket) -> Result<(), tickets_rs_core::AdapterError> {
@@ -156,7 +167,11 @@ impl TicketAdapter for GithubTicketAdapter {
     }
 
     fn state_list_all(&self) -> Vec<tickets_rs_core::State> {
-        vec![] //TODO"
+        if let Ok(lock) = self.cached_states.lock() {
+            return lock.values().cloned().collect();
+        };
+
+        vec![]
     }
 
     fn state_write(&self, state: &tickets_rs_core::State) -> Result<(), tickets_rs_core::AdapterError> {
@@ -164,7 +179,11 @@ impl TicketAdapter for GithubTicketAdapter {
     }
 
     fn tag_list_all(&self) -> Vec<tickets_rs_core::Tag> {
-        vec![] //TODO"
+        if let Ok(lock) = self.cached_tags.lock() {
+            return lock.values().cloned().collect();
+        };
+
+        vec![]
     }
 
     fn tag_write(&self, state: &tickets_rs_core::Tag) -> Result<(), tickets_rs_core::AdapterError> {

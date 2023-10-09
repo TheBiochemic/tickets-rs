@@ -755,7 +755,7 @@ impl OverlayHelper {
         });
     }
 
-    pub fn helper_update_extensions(ui: &mut Ui, ui_theme: &UITheme, ticket_provider: Arc<Mutex<TicketProvider>>, adapter_config: &mut Option<Config>) {
+    pub fn helper_update_extensions(ui: &mut Ui, ui_theme: &UITheme, ticket_provider: Arc<Mutex<TicketProvider>>, adapter_config: &mut Option<Config>, update_trigger: Arc<Mutex<bool>>) {
         let font_size = ui_theme.font_size as f32;
 
         match ticket_provider.lock() {
@@ -957,7 +957,7 @@ impl OverlayHelper {
                     };
 
                     if finish_config {
-                        match lock.adapter_from_config(config, true) {
+                        match lock.adapter_from_config(config, true, update_trigger) {
                             Ok(_) => abort_config = true,
                             Err(err) => println!("Wasn't able to create an adapter from Config due to {err}"),
                         }

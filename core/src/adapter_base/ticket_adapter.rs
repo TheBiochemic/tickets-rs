@@ -40,7 +40,7 @@ pub trait TicketAdapter {
     /**
        Creates an instance from Configuration
      */
-    fn from_config(app_config: Arc<Mutex<AppConfig>>, config: &Config) -> Result<Box<dyn TicketAdapter + Send + Sync>, AdapterError> where Self: Sized;
+    fn from_config(app_config: Arc<Mutex<AppConfig>>, config: &Config, finished: Arc<Mutex<bool>>) -> Result<Box<dyn TicketAdapter + Send + Sync>, AdapterError> where Self: Sized;
 
     /**
        Returns the path to the icon for this particular adapter.

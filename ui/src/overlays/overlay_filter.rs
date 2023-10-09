@@ -135,7 +135,7 @@ impl OverlayAction {
 
         if action_successful {
             ui_controller.close_overlay();
-            ui_controller.update_bucket_panel_data();
+            ui_controller.trigger_bucket_panel_update();
             ui_controller.execute_bucket_panel_selection();
         }
     }
@@ -164,7 +164,7 @@ impl OverlayAction {
 
         if action_successful {
             ui_controller.close_overlay();
-            ui_controller.update_bucket_panel_data();
+            ui_controller.trigger_bucket_panel_update();
             ui_controller.execute_bucket_panel_selection();
         }
     }

@@ -88,11 +88,12 @@ pub struct UIController {
     selected_filters: Rc<RefCell<Vec<BucketPanelLocation>>>,
     visible_tickets: Vec<Ticket>,
     overlay: Overlay,
+    pub update_panel_data: Arc<Mutex<bool>>
 }
 
 impl UIController {
 
-    pub fn new(configuration: Arc<Mutex<AppConfig>>, ticket_provider: Arc<Mutex<TicketProvider>>) -> Self {
+    pub fn new(configuration: Arc<Mutex<AppConfig>>, ticket_provider: Arc<Mutex<TicketProvider>>, update_trigger: Arc<Mutex<bool>>) -> Self {
 
         //show wizard, if config does not contain the wizard flag
 
@@ -141,6 +142,7 @@ impl UIController {
             open_folders: Rc::new(RefCell::new(vec![])),
             invalidate_cache: true,
             overlay: overlay,
+            update_panel_data: update_trigger,
         };
 
         controller.update_bucket_panel_data();
@@ -341,7 +343,31 @@ impl UIController {
         )
     }
 
-    pub fn update_bucket_panel_data(&mut self) {
+    pub fn trigger_bucket_panel_update(&mut self) {
+        if let Ok(mut lock) = self.update_panel_data.lock() {
+            *lock = true;
+        };
+    }
+
+    pub fn check_bucket_panel_trigger(&mut self, cache: &mut UICache) {
+
+        let mut update = false;
+
+        if let Ok(mut lock) = self.update_panel_data.lock() {
+            if *lock {
+                update = *lock;
+                *lock = false;
+            }
+        };
+
+        if update {
+            self.update_bucket_panel_data();
+            cache.tags_valid = false;
+            cache.refresh_tags(self);
+        }
+    }
+
+    fn update_bucket_panel_data(&mut self) {
 
         match self.ticket_provider.lock() {
             Ok(lock) => {

@@ -183,6 +183,9 @@ impl UserInterface {
         let shift_or_ctrl = ctx.input(|i| i.modifiers.ctrl || i.modifiers.shift);
         let controller = &mut self.ui_controller;
         let ui_theme = &self.ui_theme;
+
+        controller.check_bucket_panel_trigger(&mut self.cache);
+
         ScrollArea::vertical().show(ui, |ui| {
 
             ui.spacing_mut().item_spacing.x = 0.0;

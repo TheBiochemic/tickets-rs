@@ -22,7 +22,7 @@ use super::{
 };
 
 pub type SyncedTicketAdapter = Box<dyn TicketAdapter + Sync + Send>;
-pub type AdapterConstructor = fn(Arc<Mutex<AppConfig>>, &Config) -> Result<SyncedTicketAdapter, AdapterError>;
+pub type AdapterConstructor = fn(Arc<Mutex<AppConfig>>, &Config, Arc<Mutex<bool>>) -> Result<SyncedTicketAdapter, AdapterError>;
 pub type AdapterConfig = fn() -> Config;
 
 
@@ -48,8 +48,8 @@ impl AdapterType {
         }
     }
 
-    pub fn from_config(&self, app_config: Arc<Mutex<AppConfig>>, config: &Config) -> Result<SyncedTicketAdapter, AdapterError> {
-        (self.new_fn)(app_config, config)
+    pub fn from_config(&self, app_config: Arc<Mutex<AppConfig>>, config: &Config, done_loading: Arc<Mutex<bool>>) -> Result<SyncedTicketAdapter, AdapterError> {
+        (self.new_fn)(app_config, config, done_loading)
     }
 
     pub fn config(&self) -> Config {
@@ -71,7 +71,7 @@ impl TicketProvider {
        that manages all available Adapters, but i tried to avoid making
        a global instance just for less problems.
      */
-    pub fn new(config: Arc<Mutex<AppConfig>>, types_list: Vec<AdapterType>) -> TicketProvider {
+    pub fn new(config: Arc<Mutex<AppConfig>>, types_list: Vec<AdapterType>, finished: Arc<Mutex<bool>>) -> TicketProvider {
 
         let adapters: Vec<Arc<Box<dyn TicketAdapter + Sync + Send>>> = vec![];
         let mut type_registry: HashMap<String, AdapterType> = HashMap::new();
@@ -86,7 +86,7 @@ impl TicketProvider {
             adapters: Arc::new(Mutex::new(adapters)),
         };
 
-        ticket_provider.adapters_from_app_config();
+        ticket_provider.adapters_from_app_config(finished);
 
         ticket_provider
     }
@@ -204,7 +204,7 @@ impl TicketProvider {
        If it was successfull and write_to_app_config is true, then it will write
        the supplied config into the app config
      */
-    pub fn adapter_from_config(&self, config: &Config, write_to_app_config: bool) -> Result<(), AdapterError> {
+    pub fn adapter_from_config(&self, config: &Config, write_to_app_config: bool, finished: Arc<Mutex<bool>>) -> Result<(), AdapterError> {
         let type_name = match config.get("type") {
             Some(option) => match option.get::<String>() {
                 Some(type_name) => type_name,
@@ -229,7 +229,7 @@ impl TicketProvider {
             },
         };
 
-        match constructor(self.config.clone(), config) {
+        match constructor(self.config.clone(), config, finished) {
             Ok(adapter) => {
 
                 let mut adapters = match self.adapters.lock() {
@@ -278,7 +278,7 @@ impl TicketProvider {
        Clears the currently installed Adapters and reloads them from the 
        config, that has been supplied on instantiation of the Ticket provider.
      */
-    pub fn adapters_from_app_config(&self) {
+    pub fn adapters_from_app_config(&self, finished: Arc<Mutex<bool>>) {
 
         match self.adapters.lock() {
             Ok(mut lock) => lock.clear(),
@@ -313,7 +313,7 @@ impl TicketProvider {
 
             let adapter_config = config.get_sub_config(["adapters", adapter_name.as_str()].join(":").as_str());
 
-            match self.adapter_from_config(&adapter_config, false) {
+            match self.adapter_from_config(&adapter_config, false, finished.clone()) {
                 Ok(_) => (),
                 Err(err) => println!("Failed creating {adapter_name}. Reason: {err}"),
             };
