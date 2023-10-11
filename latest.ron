@@ -1,6 +1,6 @@
 (
     latest_versions: [
-        ("windows", 0, 2023, 4, 0),
+        ("windows", 0, 2023, 4, 1),
         ("ubuntu", 0, 2023, 4, 1)
     ]
 )
