@@ -13,4 +13,4 @@ pub use helper::UIHelper;
 
 pub use ui_cache::*;
 
-pub const APP_VERSION: &str = "0.2023.04.0";
+pub const APP_VERSION: &str = "0.2023.04.1";

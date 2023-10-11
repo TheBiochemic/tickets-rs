@@ -21,6 +21,7 @@ Currently supported Language is **English** only.
 
 ## Currently Supported Adapters
 * _local:_ Tickets are stored on the Computers Hard Drive in the form of a SQLite Database. In Theory you can put this File on a Network Folder, but i haven't tested, how it reacts to being already locked. I use it via sshfs successfully.
+* _github:_ Ticket are being read from Github and cached (updated every 5 Minutes on request). There are no Filters yet, and it is purely read only. You need to supply a personal Access Token. So far i only managed to get all my Public Repositories to show (not sure, if that's any different with different Plans). However, you can also display the Repo List of other accounts via this Adapter. It is very barebones, doesn't include any Comments or details of why an issue is open/closed and no Pull Requests.
 
 ## Getting Started (from Source)
 
@@ -39,6 +40,7 @@ It is rather easy though:
 There is a new branch available called _releases_. In there you should be able to find the zip files of the binaries, so you can just download the version you need, unpack it and run it.
 
 * [Go to Windows 10+ Releases Folder](https://github.com/TheBiochemic/tickets-rs/tree/releases/win_versions)
+* [Go to Ubuntu Releases Folder](https://github.com/TheBiochemic/tickets-rs/tree/releases/ubuntu_versions)
 
 ## Contributors
 
