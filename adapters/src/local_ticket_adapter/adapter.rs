@@ -533,7 +533,8 @@ impl TicketAdapter for LocalTicketAdapter {
                                 created_at: row.get(5).unwrap(),
                                 due_at: row.get(6).unwrap(),
                                 assigned_to: row.get(7).unwrap(),
-                                tags: vec![]
+                                tags: vec![],
+                                additional_id: id.to_string()
                             })
                         }).unwrap();
 
@@ -646,7 +647,8 @@ impl TicketAdapter for LocalTicketAdapter {
                                 created_at: row.get(5).unwrap(),
                                 due_at: row.get(6).unwrap(),
                                 assigned_to: row.get(7).unwrap(),
-                                tags: vec![]
+                                tags: vec![],
+                                additional_id: row.get::<_, i64>(0).unwrap().to_string()
                             })
                         }).unwrap();
                 
@@ -732,7 +734,8 @@ impl TicketAdapter for LocalTicketAdapter {
                                 created_at: row.get(5).unwrap(),
                                 due_at: row.get(6).unwrap(),
                                 assigned_to: row.get(7).unwrap(),
-                                tags: vec![]
+                                tags: vec![],
+                                additional_id: row.get::<_, i64>(0).unwrap().to_string()
                             })
                         }).unwrap();
                 

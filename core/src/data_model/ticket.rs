@@ -22,22 +22,24 @@ pub struct Ticket {
     pub description: String,
     pub tags: Vec<String>,
     pub created_at: i64,
-    pub due_at: i64
+    pub due_at: i64,
+    pub additional_id: String
 }
 
 impl Default for Ticket {
     fn default() -> Self {
         Ticket { 
-            adapter: String::default(),
+            adapter: "".into(),
             id: 0, 
             bucket_id: 0, 
-            title: String::default(), 
-            assigned_to: String::default(),
-            state_name: String::default(), 
-            description: String::default(), 
+            title: "".into(), 
+            assigned_to: "".into(),
+            state_name: "".into(), 
+            description: "".into(), 
             created_at: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64, 
             due_at: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64, 
-            tags: vec![]
+            tags: vec![],
+            additional_id: "".into()
         }
     }
 }

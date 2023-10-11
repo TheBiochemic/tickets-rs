@@ -362,8 +362,7 @@ impl UIController {
 
         if update {
             self.update_bucket_panel_data();
-            cache.tags_valid = false;
-            cache.refresh_tags(self);
+            self.invalidate_cache(Some(cache));
         }
     }
 
